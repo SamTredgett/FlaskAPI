@@ -1,0 +1,19 @@
+{
+    "sender": {
+      "name": "Carole's Computers",
+      "street_address": "123 Castle Street",
+      "city": "Birmingham",
+      "country_code": "GB"
+    },
+    "recipient": {
+      "name": "Angela Schmidt",
+      "street_address": "123 Schloßstraße",
+      "city": "Berlin",
+      "country_code": "DE"
+    },
+    "value": "1234.50",
+    "despatch_date": "2021-09-01",
+    "contents declaration": "Laptop",
+    "insurance_required": true,
+    "tracking_reference": "GBDE1231239090"
+  }
