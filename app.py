@@ -117,9 +117,12 @@ def put_orders():
         #  Insurance Checks
         # Is it too expensive for insurance and shipping?
         if float(new_dict['value']) >= 10000:
+            insurance_required = False
             return 'Item too valuable, cannot be shipped'
+            
         # Did they want to insure the package?
         if new_dict['insurance_required']: 
+            insurance_required=True
             # Where is it going to?
             if new_dict['recipient']['country_code'].lower() == 'gb':
                 total_insurance_cost = float(new_dict['value']) * 1.01
@@ -161,17 +164,28 @@ def put_orders():
             4 - does the tracking number already exist? if so ignore it 
         """
         #  time to query database for the order tracking reference
-        tracking_ref = OrderDb.query.filter_by(tracking_reference = new_dict['tracking_reference'])
-        print(tracking_ref)
+        # tracking_ref = OrderDb.query.filter_by(tracking_reference = new_dict['tracking_reference'])
+        # print(tracking_ref)
         # if OrderDb.query.filter_by(tracking_reference = new_dict['tracking_reference']).all():
         #     print('Already exists!')
         # if new_dict['tracking_reference'] in db.Query.filter_by().all():
         #     return "this order already exists!"
 
 
+        # Generate ID
+        order_id = randint(1,1000000)
+        accepted_date = datetime.now()
 
+        package = {
+            "Order" : new_order.dict(),
+            "order_url" : f"http://localhost:8080/order/{order_id}",
+            "accepted_at" : str(accepted_date),
+            "insurance_provided" : insurance_required,
+            "total_insurance_charge" : str(total_insurance_cost),
+            "ipt_included_in_charge" : str(ipt_included_in_charge)
+        }
 
-
+        # print(package)
         '''Add Valid orders to the database and return new "package" object
             this should contain new dictionary data:
             "order_url": "http://localhost:8080/order/<order.id>",
@@ -180,6 +194,8 @@ def put_orders():
             "total_insurance_charge": str(insurance_cost),
             "ipt_included_in_charge": "1.98"
         '''
+
+        return jsonify(package)
         # order = Order()
         # sender_db = SenderDb(**sender.dict())
         # db.session.add(sender_db)
