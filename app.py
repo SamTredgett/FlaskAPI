@@ -44,6 +44,8 @@ class OrderDb(db.Model):
 
     sender = db.Column(db.Integer,db.ForeignKey('senderDb.id'))
     recipient = db.Column(db.Integer, db.ForeignKey('recipientDb.id'))
+
+
     value = db.Column(db.Float, nullable=False)
     despatch_date = db.Column(db.String, nullable=False)
     contents_declaration = db.Column(db.String, nullable=False)
@@ -65,7 +67,7 @@ class SenderDb(db.Model):
     street_address = db.Column(db.String, nullable=False )
     city = db.Column(db.String, nullable=False)
     country_code = db.Column(db.String, nullable=False)
-    orders = db.relationship(OrderDb , db.ForeignKey('orderDb.id'),backref='owner')
+    orders = db.relationship('OrderDb' , db.ForeignKey('orderDb.id'),backref='owner')
     # order_id = db.column(db.Integer, db.ForeignKey('orderDb.id'))
     #  Create a function to return something when we add it 
     def __repr__(self):
@@ -77,7 +79,7 @@ class RecipientDb(db.Model):
     street_address = db.Column(db.String, nullable=False )
     city = db.Column(db.String, nullable=False)
     country_code = db.Column(db.String, nullable=False)
-    order = db.relationship(OrderDb, backref='owner')
+    order = db.relationship('OrderDb', backref='owner')
     # orders = db.column(db.Integer, db.ForeignKey('orderDb.id'))
     #  Create a function to return something when we add it 
     def __repr__(self):
@@ -109,6 +111,7 @@ def put_orders():
             "insurance_required" : bool(main_dict['insurance_required']),
             "tracking_reference" : main_dict['tracking_reference']
         }
+        new_order = Order(**new_dict)
         print(new_dict)
 
         #  Insurance Checks
@@ -119,24 +122,21 @@ def put_orders():
         if new_dict['insurance_required']: 
             # Where is it going to?
             if new_dict['recipient']['country_code'].lower() == 'gb':
-                insurance_cost = float(new_dict['value']) * 1.01
+                total_insurance_cost = float(new_dict['value']) * 1.01
             if new_dict['recipient']['country_code'].lower() in ['de', 'fr', 'be', 'nl']:
-                insurance_cost = float(new_dict['value']) * 1.015
+                total_insurance_cost = float(new_dict['value']) * 1.015
             else:
-                insurance_cost = float(new_dict['value']) * 1.04
+                total_insurance_cost = float(new_dict['value']) * 1.04
 
-        if insurance_cost < 9:
-            insurance_cost = 9
-            
+        if total_insurance_cost < 9:
+            total_insurance_cost = 9
+        
+        # Calculate the Insurance Premium Tax
+        ipt_included_in_charge =  total_insurance_cost * 0.12
 
         
 
 
-        #  time to query database for the order tracking reference
-        # if OrderDb.query.filter_by(tracking_reference = new_dict['tracking_reference']).all():
-        #     print('Already exists!')
-        # if new_dict['tracking_reference'] in db.Query.filter_by().all():
-        #     return "this order already exists!"
 
 
 
@@ -160,8 +160,26 @@ def put_orders():
             Checks to make for main logic:
             4 - does the tracking number already exist? if so ignore it 
         """
+        #  time to query database for the order tracking reference
+        tracking_ref = OrderDb.query.filter_by(tracking_reference = new_dict['tracking_reference'])
+        print(tracking_ref)
+        # if OrderDb.query.filter_by(tracking_reference = new_dict['tracking_reference']).all():
+        #     print('Already exists!')
+        # if new_dict['tracking_reference'] in db.Query.filter_by().all():
+        #     return "this order already exists!"
 
 
+
+
+
+        '''Add Valid orders to the database and return new "package" object
+            this should contain new dictionary data:
+            "order_url": "http://localhost:8080/order/<order.id>",
+            "accepted_at": "2021-09-01T12:22:43.406768",
+            "insurance_provided": true,
+            "total_insurance_charge": str(insurance_cost),
+            "ipt_included_in_charge": "1.98"
+        '''
         # order = Order()
         # sender_db = SenderDb(**sender.dict())
         # db.session.add(sender_db)
