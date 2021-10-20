@@ -95,7 +95,7 @@ def hello_world():
     return render_template('index.html')
 
 """Example skeleton structure for some request"""
-@app.route('/orders/', methods=['PUT'])
+@app.route('/orders', methods=['PUT'])
 def put_orders():
     main_dict = dict(request.json)
     try: 
