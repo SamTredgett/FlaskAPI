@@ -138,15 +138,23 @@ def put_orders():
         # if new_dict['tracking_reference'] in db.Query.filter_by().all():
         #     return "this order already exists!"
 
-        parsed_time =  datetime.strptime(new_dict['despatch_date'], '%Y-%m-%d')
 
-        # Check to see if date is outside of today/tomorrow
-        date = datetime.today()
-        delta = date-parsed_time
-        if delta.days > 1:
-            print("Order too far in the future! Please choose a date that is today/tomorrow.")
-            return redirect('/')
+
+        #    Check to see if date is outside of today/tomorrow
+
+        try:
+            parsed_time =  datetime.strptime(new_dict['despatch_date'], '%Y-%m-%d')
+            date = datetime.today()
+            delta = date-parsed_time
+            if delta.days > 1:
+                print("Order too far in the future! Please choose a date that is today/tomorrow.")
+                return redirect('/')
+        except ValueError as e:
+            print("Please structure date requests as year/month/date - like this: 2000-12-31")
+            print(e)
+            redirect('/')
         
+
 
         """
             Checks to make for main logic:
