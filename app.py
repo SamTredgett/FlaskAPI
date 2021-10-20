@@ -129,7 +129,7 @@ def put_orders():
             insurance_cost = 9
             
 
-        # Now that we actually have the information we need we can begin processing it 
+        
 
 
         #  time to query database for the order tracking reference
@@ -137,15 +137,20 @@ def put_orders():
         #     print('Already exists!')
         # if new_dict['tracking_reference'] in db.Query.filter_by().all():
         #     return "this order already exists!"
-        stringed_time =  datetime.strptime(new_dict['despatch_date'], '%y%m%d')
-        print(stringed_time)
 
+        parsed_time =  datetime.strptime(new_dict['despatch_date'], '%Y-%m-%d')
 
+        # Check to see if date is outside of today/tomorrow
+        date = datetime.today()
+        delta = date-parsed_time
+        if delta.days > 1:
+            print("Order too far in the future! Please choose a date that is today/tomorrow.")
+            return redirect('/')
+        
 
         """
             Checks to make for main logic:
             4 - does the tracking number already exist? if so ignore it 
-            5 - don't accept orders where despatch date isn't today/tomorrow?
         """
 
 
