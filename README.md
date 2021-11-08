@@ -1,5 +1,4 @@
-# FlaskAPIChallenge
-Thanks for the opportunity to be involved in this! This task was a challenge but i'm interested to see what you think of my approach.
+# FlaskAPI
 
 Python dependencies are stored in `requirements.txt`
 once dependencies and virtual environment are set up just run app.py
